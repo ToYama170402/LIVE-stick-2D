@@ -15,9 +15,8 @@ def get_picture(cap: cv2.VideoCapture) -> Optional[np.ndarray]:
 
 def estimate_pose(
     image: np.ndarray,
-    pose: mp.solutions.pose.Pose = mp.solutions.pose.Pose(static_image_mode=False),
+    pose: mp.solutions.pose.Pose,
 ):
-    mp_pose = mp.solutions.pose
     results = pose.process(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
     pose_landmarks = results.pose_landmarks
     return pose_landmarks
