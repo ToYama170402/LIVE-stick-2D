@@ -64,42 +64,40 @@ def draw_stickman(
             np.array(left_shoulder) - np.array(right_shoulder)
         )
 
-        # 首の根本(両肩の中点)
         neck_base = tuple((np.array(left_shoulder) + np.array(right_shoulder)) // 2)
-
-        # 腰骨の両端の中点
         left_hip = points[23]
         right_hip = points[24]
         hip_center = tuple((np.array(left_hip) + np.array(right_hip)) // 2)
-
-        # 頭の中心
         head_center = points[0]
 
         line_width = int(shoulder_width // 10)
         line_color = (55, 55, 55)
         filled_color = (233, 233, 233)
 
-        # 肩の両端を結ぶ直線
         shoulder_line = (left_shoulder, right_shoulder)
-        # 首の根本と腰骨の両端の中点を結ぶ直線
         spine_line = (head_center, hip_center)
-        # 交点を計算
         arm_root = line_intersection(
             shoulder_line[0], shoulder_line[1], spine_line[0], spine_line[1]
         )
 
-        # 背骨を描画
+        # 背骨
         pygame.draw.lines(
             screen, line_color, False, [head_center, hip_center], line_width
         )
+        # 両端を丸く
+        pygame.draw.circle(screen, line_color, head_center, line_width // 2)
+        pygame.draw.circle(screen, line_color, hip_center, line_width // 2)
 
-        # 腕を描画（腕の根本を交点に変更）
+        # 腕
         left_arm_points = [arm_root] + [points[i] for i in [13, 15]]
         right_arm_points = [arm_root] + [points[i] for i in [14, 16]]
         pygame.draw.lines(screen, line_color, False, left_arm_points, line_width)
         pygame.draw.lines(screen, line_color, False, right_arm_points, line_width)
+        # 両端を丸く
+        for point in [*left_arm_points, *right_arm_points]:
+            pygame.draw.circle(screen, line_color, point, line_width // 2)
 
-        # 頭を描画
+        # 頭
         pygame.draw.circle(screen, filled_color, head_center, int(shoulder_width // 2))
         pygame.draw.circle(
             screen, line_color, head_center, int(shoulder_width // 2), line_width
