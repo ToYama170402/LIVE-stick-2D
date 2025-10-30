@@ -131,11 +131,8 @@ def main() -> None:
                     points = landmarks_to_points(landmarks, picture.shape)
 
                     h, w = picture.shape[:2]
-                    bg = cv2.cvtColor(picture, cv2.COLOR_BGR2RGB)
-                    bg = np.rot90(np.fliplr(bg))
-                    bg_surface = pygame.surfarray.make_surface(bg)
+                    screen.fill((0, 0, 255))
 
-                    screen.blit(bg_surface, (0, 0))
                     draw_stickman(screen, points)
                     pygame.display.flip()
 
