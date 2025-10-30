@@ -125,7 +125,7 @@ def main() -> None:
         try:
             picture = get_picture(cap)
             if picture is not None:
-                landmarks = estimate_pose(picture, pose)
+                landmarks = estimate_pose(np.fliplr(picture), pose)
                 if landmarks:
                     points = landmarks_to_points(landmarks, picture.shape)
 
