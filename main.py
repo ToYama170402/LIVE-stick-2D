@@ -36,42 +36,74 @@ def landmarks_to_points(
     return points
 
 
+def line_intersection(p1, p2, p3, p4):
+    """2直線の交点を計算"""
+    x1, y1 = p1
+    x2, y2 = p2
+    x3, y3 = p3
+    x4, y4 = p4
+
+    denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4)
+    if denom == 0:
+        # 平行な場合は首の根本を返す
+        return p1
+
+    px = ((x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4)) / denom
+    py = ((x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4)) / denom
+    return (int(px), int(py))
+
+
 def draw_stickman(
     screen: pygame.Surface,
     points: List[Tuple[int, int]],
 ) -> None:
     if points:
-        # 肩幅を取得
         left_shoulder = points[11]
         right_shoulder = points[12]
         shoulder_width = np.linalg.norm(
             np.array(left_shoulder) - np.array(right_shoulder)
         )
 
-        # 首の根本(両肩の中点)を取得
-        neck_base = np.array((left_shoulder) + np.array(right_shoulder)) // 2
-        neck_base = tuple(neck_base.astype(int))
+        # 首の根本(両肩の中点)
+        neck_base = tuple((np.array(left_shoulder) + np.array(right_shoulder)) // 2)
 
-        # 腰骨の両端の中点を取得
+        # 腰骨の両端の中点
         left_hip = points[23]
         right_hip = points[24]
-        hip_center = np.array((left_hip) + np.array(right_hip)) // 2
-        hip_center = tuple(hip_center.astype(int))
+        hip_center = tuple((np.array(left_hip) + np.array(right_hip)) // 2)
 
-        # 頭を描画
+        # 頭の中心
         head_center = points[0]
-        pygame.draw.circle(
-            screen, (255, 0, 0), head_center, float(shoulder_width // 2), 2
+
+        line_width = int(shoulder_width // 10)
+        line_color = (55, 55, 55)
+        filled_color = (233, 233, 233)
+
+        # 肩の両端を結ぶ直線
+        shoulder_line = (left_shoulder, right_shoulder)
+        # 首の根本と腰骨の両端の中点を結ぶ直線
+        spine_line = (head_center, hip_center)
+        # 交点を計算
+        arm_root = line_intersection(
+            shoulder_line[0], shoulder_line[1], spine_line[0], spine_line[1]
         )
 
         # 背骨を描画
-        pygame.draw.lines(screen, (0, 255, 0), False, [neck_base, hip_center], 2)
+        pygame.draw.lines(
+            screen, line_color, False, [head_center, hip_center], line_width
+        )
 
-        # 腕を描画
-        left_arm_points = [neck_base] + [points[i] for i in [13, 15]]
-        right_arm_points = [neck_base] + [points[i] for i in [14, 16]]
-        pygame.draw.lines(screen, (0, 0, 255), False, left_arm_points, 2)
-        pygame.draw.lines(screen, (0, 0, 255), False, right_arm_points, 2)
+        # 腕を描画（腕の根本を交点に変更）
+        left_arm_points = [arm_root] + [points[i] for i in [13, 15]]
+        right_arm_points = [arm_root] + [points[i] for i in [14, 16]]
+        pygame.draw.lines(screen, line_color, False, left_arm_points, line_width)
+        pygame.draw.lines(screen, line_color, False, right_arm_points, line_width)
+
+        # 頭を描画
+        pygame.draw.circle(screen, filled_color, head_center, int(shoulder_width // 2))
+        pygame.draw.circle(
+            screen, line_color, head_center, int(shoulder_width // 2), line_width
+        )
 
 
 def main() -> None:
