@@ -88,8 +88,40 @@ def draw_stickman(
         pygame.draw.circle(screen, line_color, hip_center, line_width // 2)
 
         # 腕
-        left_arm_points = [arm_root] + [points[i] for i in [13, 15]]
-        right_arm_points = [arm_root] + [points[i] for i in [14, 16]]
+        left_elbow = points[13]
+        right_elbow = points[14]
+        left_wrist = points[15]
+        right_wrist = points[16]
+
+        # 上腕を短くする
+        def scale_upper_arm(elbow, shoulder, scale=0.4):
+            vec = np.array(elbow) - np.array(shoulder)
+            return tuple((np.array(shoulder) + vec * scale).astype(int))
+
+        new_left_elbow = scale_upper_arm(left_elbow, left_shoulder)
+        new_right_elbow = scale_upper_arm(right_elbow, right_shoulder)
+
+        # 上腕の長さを短くした分だけ手首を移動する
+        def move_wrist(
+            wrist,
+            vec,
+        ):
+            return tuple(np.array(wrist) - np.array(vec))
+
+        left_arm_points = [arm_root] + [
+            new_left_elbow,
+            move_wrist(
+                left_wrist,
+                tuple(np.array(left_elbow) - np.array(new_left_elbow)),
+            ),
+        ]
+        right_arm_points = [arm_root] + [
+            new_right_elbow,
+            move_wrist(
+                right_wrist,
+                tuple(np.array(right_elbow) - np.array(new_right_elbow)),
+            ),
+        ]
         pygame.draw.lines(screen, line_color, False, left_arm_points, line_width)
         pygame.draw.lines(screen, line_color, False, right_arm_points, line_width)
         # 両端を丸く
